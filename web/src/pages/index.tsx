@@ -1,8 +1,10 @@
 import Head from "next/head";
+import Pagination from "./pagination";
 import {Inter} from "next/font/google";
 import Table from "react-bootstrap/Table";
 import {Alert, Container} from "react-bootstrap";
 import {GetServerSideProps, GetServerSidePropsContext} from "next";
+import {useState} from "react";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -42,6 +44,15 @@ export default function Home({statusCode, users}: TGetServerSideProps) {
     return <Alert variant={'danger'}>Ошибка {statusCode} при загрузке данных</Alert>
   }
 
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 20
+  const startIndex = (currentPage-1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber)
+  }
+
   return (
     <>
       <Head>
@@ -68,7 +79,7 @@ export default function Home({statusCode, users}: TGetServerSideProps) {
             </thead>
             <tbody>
             {
-              users.map((user) => (
+              users.slice(startIndex, endIndex).map((user) => (
                 <tr key={user.id}>
                   <td>{user.id}</td>
                   <td>{user.firstname}</td>
@@ -81,8 +92,14 @@ export default function Home({statusCode, users}: TGetServerSideProps) {
             }
             </tbody>
           </Table>
-
-          {/*TODO add pagination*/}
+          
+          <Pagination
+            totalItems={users.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+            paginate={paginate}
+            setCurrentPage={setCurrentPage}
+          />
 
         </Container>
       </main>
